@@ -1,0 +1,58 @@
+#pragma once
+
+#include <cstdint>
+#include <type_traits>
+
+namespace std {
+    template<typename ItemType, size_t N>
+    struct array {
+        using item_type = ItemType;
+        
+        using size_type = std::conditional_t<(N < 256), 
+                               uint8_t, 
+                               std::conditional_t<(N < 65536), uint16_t, uint32_t>
+                          >;
+        
+        static constexpr size_type size() {
+            return N;
+        }
+        
+        constexpr ItemType* begin() {
+            return &data[0];
+        }
+        constexpr ItemType* end() {
+            return &data[N - 1] + 1;
+        }
+        constexpr const ItemType* begin() const {
+            return &data[0];
+        }
+        constexpr const ItemType* end() const {
+            return &data[N - 1] + 1;
+        }
+        constexpr ItemType& operator[](const size_t index) {
+            return data[index];
+        }
+        constexpr const ItemType& operator[](const size_t index) const {
+            return data[index];
+        }
+        ItemType data[N];
+    };
+    
+    template<typename T, size_t N>
+    constexpr T* begin(std::array<T, N>& a) {
+        return a.begin();
+    }
+    template<typename T, size_t N>
+    constexpr T* end(std::array<T, N>& a) {
+        return a.end();
+    }
+    template<typename T, size_t N>
+    constexpr const T* begin(const std::array<T, N>& a) {
+        return a.begin();
+    }
+    template<typename T, size_t N>
+    constexpr const T* end(const std::array<T, N>& a) {
+        return a.end();
+    }
+    
+}
