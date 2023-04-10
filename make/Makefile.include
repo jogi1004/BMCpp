@@ -1,7 +1,6 @@
 
 CXX = /usr/bin/avr-g++
-CXXFLAGS += -Wall -Wextra -Os -mmcu=avr128db64
-#CXXFLAGS += -Wall -Wextra -Os -mmcu=atmega328
+CXXFLAGS += -Wall -Wextra -Os -mmcu=avr128db48
 CXXFLAGS += -std=c++20 
 #CXXFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
 CXXFLAGS += -fno-threadsafe-statics
