@@ -2,57 +2,127 @@
 #include <util/delay.h>
 #include <stdio.h>
 
+#define F_CPU 20000000UL
+#define TRIGGER_PIN PIN1_bm
+#define ECHO_PIN PIN0_bm
+#define SUMMER_PIN PIN7_bm
+
+void init_timer()
+{
+    TCB1.CTRLA = TCB_CLKSEL_DIV1_gc;  // Set timer/counter B1 to run at system clock
+    TCB1.CTRLB = TCB_CNTMODE_PWM8_gc; // Set timer/counter B1 to PWM mode
+
+    TCB1.CCMP = 100;             // Set PWM frequency to about 4 kHz
+    TCB1.CTRLB |= TCB_CCMPEN_bm; // Enable PWM output on PB7
+
+    // Configure PD2 as output pin
+    PORTD.DIRSET = SUMMER_PIN;
+
+        TCB1.CCMP = 10;            // Set PWM duty cycle to 10% for a very low-pitched tone
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(100);
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+        _delay_ms(100);
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(100);
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+        _delay_ms(2000);
+}
+
+void send_pulse()
+{
+    // Send trigger pulse
+    PORTD.OUTSET = TRIGGER_PIN;
+    _delay_us(20);
+    PORTD.OUTCLR = TRIGGER_PIN;
+
+
+}
+
+uint16_t measure_pulse()
+{
+    uint16_t pulse_start = 0;
+    uint16_t pulse_end = 0;
+
+    // Send trigger pulse
+    send_pulse();
+
+    // Wait for the echo pulse to start
+    while (!(PORTD.IN & ECHO_PIN))
+        ;
+
+    pulse_start = TCB1.CNT; // Record the timer value
+
+    // Wait for the echo pulse to end
+    while ((PORTD.IN & ECHO_PIN))
+        ;
+
+    pulse_end = TCB1.CNT; // Record the timer value
+    PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+    _delay_ms(100);
+    PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+
+    uint16_t pulse_duration = pulse_end - pulse_start; // Calculate pulse duration
+    return pulse_duration;                             // Return pulse duration in timer ticks
+}
+
+void update_summer(uint16_t distance)
+{
+    if (distance < 200 && distance >= 100)
+    {
+        TCB1.CCMP = 50;            // Set PWM duty cycle to 50% for a mid-pitched tone
+        _delay_ms(500);
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(500);
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+
+
+    }
+    else if (distance < 100 && distance >= 75)
+    {
+        TCB1.CCMP = 25;            // Set PWM duty cycle to 25% for a low-pitched tone 
+        _delay_ms(300);
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(300);
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+    }
+    else if (distance < 50 && distance >= 25)
+    {
+        TCB1.CCMP = 10;            // Set PWM duty cycle to 10% for a very low-pitched tone
+        _delay_ms(100);
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(100);
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+    }
+    else if (distance < 25)
+    {
+        TCB1.CCMP = 90;            // Set PWM duty cycle to 90% for a very high-pitched tone
+        _delay_ms(50);
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(50);
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+    }
+    else
+    {
+        TCB1.CCMP = 0;             // Turn off the PWM output
+        PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
+    }
+}
+
 int main(void)
 {
-    PORTD.DIRSET = PIN1_bm; // Set PD1 as output
-    PORTD.DIRCLR = PIN0_bm; // Set PD0 as input
-    PORTD.DIRSET = PIN7_bm; // Set PD7 als output
+    PORTD.DIRSET = TRIGGER_PIN | SUMMER_PIN; // Set trigger and summer pins as outputs
+    PORTD.DIRCLR = ECHO_PIN; // Set echo pin as input
 
-    TCB1.CTRLA = TCB_CLKSEL_DIV1_gc; // Set timer/counter B1 to run at system clock
-    TCB1.CTRLB = TCB_WGMODE_NORMAL_gc; // Set timer/counter B1 to normal mode
+init_timer(); // Initialize timer/counter B1 for PWM
 
-    while(1)
-    {
-        PORTD.OUTSET = PIN1_bm; // Send a 10us pulse to trigger the sensor
-        _delay_us(10);
-        PORTD.OUTCLR = PIN1_bm;
+while (1)
+{
+    uint16_t pulse_duration = measure_pulse(); // Measure pulse duration
+    uint16_t distance = pulse_duration / 58;   // Convert pulse duration to distance in centimeters
 
-        while(!(PORTD.IN & PIN0_bm)); // Wait for the echo pulse to start
+    update_summer(distance); // Update the summer based on the measured distance
+}
+return 0;
 
-        uint16_t pulse_start = TCB1.CNT; // Record the timer value
-
-        while((PORTD.IN & PIN0_bm)); // Wait for the echo pulse to end
-
-        uint16_t pulse_end = TCB1.CNT; // Record the timer value 
-        uint16_t pulse_duration = pulse_end - pulse_start; // Calculate pulse duration
-        uint16_t distance = pulse_duration / 58; // Calculate distance in cm
-
-        if (distance < 200 && distance >= 100) {
-            PORTD.OUTSET = PIN7_bm; // Set PD2 to high to turn on the LED
-            _delay_ms(500);
-            PORTD.OUTCLR = PIN7_bm; // Set PD2 to low to turn off the LED
-        }
-        if (distance < 100 && distance >= 75) {
-            PORTD.OUTSET = PIN7_bm; // Set PD2 to high to turn on the LED
-            _delay_ms(300);
-            PORTD.OUTCLR = PIN7_bm; // Set PD2 to low to turn off the LED
-        }
-        if (distance < 75 && distance >= 50) {
-            PORTD.OUTSET = PIN7_bm; // Set PD2 to high to turn on the LED
-            _delay_ms(200);
-            PORTD.OUTCLR = PIN7_bm; // Set PD2 to low to turn off the LED
-        }
-        if (distance < 50 && distance >= 25) {
-            PORTD.OUTSET = PIN7_bm; // Set PD2 to high to turn on the LED
-            _delay_ms(100);
-            PORTD.OUTCLR = PIN7_bm; // Set PD2 to low to turn off the LED
-        }
-        if (distance < 25) {
-            PORTD.OUTSET = PIN7_bm; // Set PD2 to high to turn on the LED
-            _delay_ms(10);
-            PORTD.OUTCLR = PIN7_bm; // Set PD2 to low to turn off the LED
-        }
-
-        //_delay_ms(500); // Wait for 500ms before taking another reading
-    }
 }
