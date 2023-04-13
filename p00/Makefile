@@ -9,6 +9,8 @@ targets += test11.s test11.hex test11.elf
 targets += test12.s test12.hex test12.elf
 targets += test13.s test13.hex test13.elf
 targets += test14.s test14.hex test14.elf
+targets += test20.s test20.hex test20.elf
+targets += test21.s test21.hex test21.elf
 
 all: $(targets)
 
