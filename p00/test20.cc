@@ -15,28 +15,24 @@ void init_timer()
     TCB1.CCMP = 100;             // Set PWM frequency to about 4 kHz
     TCB1.CTRLB |= TCB_CCMPEN_bm; // Enable PWM output on PB7
 
-    // Configure PD2 as output pin
-    PORTD.DIRSET = SUMMER_PIN;
-
         TCB1.CCMP = 10;            // Set PWM duty cycle to 10% for a very low-pitched tone
-        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
         _delay_ms(100);
         PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
         _delay_ms(100);
         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
         _delay_ms(100);
         PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
-        _delay_ms(2000);
+        _delay_ms(3000); 
 }
 
 void send_pulse()
 {
     // Send trigger pulse
     PORTD.OUTSET = TRIGGER_PIN;
-    _delay_us(20);
+    //_delay_us(100);
+    _delay_ms(10);
     PORTD.OUTCLR = TRIGGER_PIN;
-
-
 }
 
 uint16_t measure_pulse()
@@ -58,9 +54,6 @@ uint16_t measure_pulse()
         ;
 
     pulse_end = TCB1.CNT; // Record the timer value
-    PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
-    _delay_ms(100);
-    PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
 
     uint16_t pulse_duration = pulse_end - pulse_start; // Calculate pulse duration
     return pulse_duration;                             // Return pulse duration in timer ticks
@@ -75,8 +68,6 @@ void update_summer(uint16_t distance)
         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
         _delay_ms(500);
         PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
-
-
     }
     else if (distance < 100 && distance >= 75)
     {
@@ -94,7 +85,7 @@ void update_summer(uint16_t distance)
         _delay_ms(100);
         PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
     }
-    else if (distance < 25)
+    else if (distance < 25 && distance > 0)
     {
         TCB1.CCMP = 90;            // Set PWM duty cycle to 90% for a very high-pitched tone
         _delay_ms(50);
@@ -107,6 +98,7 @@ void update_summer(uint16_t distance)
         TCB1.CCMP = 0;             // Turn off the PWM output
         PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
     }
+    
 }
 
 int main(void)
@@ -120,7 +112,6 @@ while (1)
 {
     uint16_t pulse_duration = measure_pulse(); // Measure pulse duration
     uint16_t distance = pulse_duration / 58;   // Convert pulse duration to distance in centimeters
-
     update_summer(distance); // Update the summer based on the measured distance
 }
 return 0;
