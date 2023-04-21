@@ -26,19 +26,14 @@ _Z10init_timerv:
 	ldd r24,Z+1
 	ori r24,lo8(16)
 	std Z+1,r24
-	ldi r26,lo8(96)
-	ldi r27,lo8(4)
+	ldi r24,lo8(10)
+	ldi r25,0
+	std Z+12,r24
+	std Z+13,r25
+	ldi r30,lo8(96)
+	ldi r31,lo8(4)
 	ldi r24,lo8(-128)
-	adiw r26,1
-	st X,r24
-	sbiw r26,1
-	ldi r18,lo8(10)
-	ldi r19,0
-	std Z+12,r18
-	std Z+13,r19
-	adiw r26,5
-	st X,r24
-	sbiw r26,5
+	std Z+5,r24
 	ldi r18,lo8(79999)
 	ldi r19,hi8(79999)
 	ldi r25,hlo8(79999)
@@ -48,9 +43,7 @@ _Z10init_timerv:
 	brne 1b
 	rjmp .
 	nop
-	adiw r26,6
-	st X,r24
-	sbiw r26,6
+	std Z+6,r24
 	ldi r18,lo8(79999)
 	ldi r19,hi8(79999)
 	ldi r25,hlo8(79999)
@@ -60,9 +53,7 @@ _Z10init_timerv:
 	brne 1b
 	rjmp .
 	nop
-	adiw r26,5
-	st X,r24
-	sbiw r26,5
+	std Z+5,r24
 	ldi r18,lo8(79999)
 	ldi r19,hi8(79999)
 	ldi r25,hlo8(79999)
@@ -72,11 +63,10 @@ _Z10init_timerv:
 	brne 1b
 	rjmp .
 	nop
-	adiw r26,6
-	st X,r24
-	ldi r18,lo8(1599999)
-	ldi r19,hi8(1599999)
-	ldi r24,hlo8(1599999)
+	std Z+6,r24
+	ldi r18,lo8(3999999)
+	ldi r19,hi8(3999999)
+	ldi r24,hlo8(3999999)
 1:	subi r18,1
 	sbci r19,0
 	sbci r24,0
@@ -97,10 +87,12 @@ _Z10send_pulsev:
 	ldi r31,lo8(4)
 	ldi r24,lo8(2)
 	std Z+5,r24
-	ldi r25,lo8(26)
-1:	dec r25
+	ldi r26,lo8(9999)
+	ldi r27,hi8(9999)
+1:	sbiw r26,1
 	brne 1b
 	rjmp .
+	nop
 	std Z+6,r24
 /* epilogue start */
 	ret
@@ -123,21 +115,8 @@ _Z13measure_pulsev:
 	lds r24,1128
 	sbrc r24,0
 	rjmp .L5
-	lds r20,2842
-	lds r21,2842+1
-	ldi r25,lo8(-128)
-	sts 1125,r25
-	ldi r22,lo8(79999)
-	ldi r23,hi8(79999)
-	ldi r24,hlo8(79999)
-1:	subi r22,1
-	sbci r23,0
-	sbci r24,0
-	brne 1b
-	rjmp .
-	nop
-	sts 1126,r25
-	movw r24,r20
+	lds r24,2842
+	lds r25,2842+1
 	sub r24,r18
 	sbc r25,r19
 /* epilogue start */
@@ -243,7 +222,9 @@ _Z13update_summerj:
 	brne 1b
 	rjmp .L16
 .L13:
-	cpi r18,25
+	subi r18,1
+	sbc r19,__zero_reg__
+	cpi r18,24
 	cpc r19,__zero_reg__
 	brsh .L14
 	ldi r24,lo8(90)
