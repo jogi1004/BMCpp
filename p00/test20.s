@@ -23,8 +23,7 @@ _Z10init_timerv:
 	ldi r25,0
 	std Z+12,r24
 	std Z+13,r25
-	ldd r24,Z+1
-	ori r24,lo8(16)
+	ldi r24,lo8(16)
 	std Z+1,r24
 	ldi r24,lo8(10)
 	ldi r25,0
@@ -64,9 +63,9 @@ _Z10init_timerv:
 	rjmp .
 	nop
 	std Z+6,r24
-	ldi r18,lo8(3999999)
-	ldi r19,hi8(3999999)
-	ldi r24,hlo8(3999999)
+	ldi r18,lo8(2399999)
+	ldi r19,hi8(2399999)
+	ldi r24,hlo8(2399999)
 1:	subi r18,1
 	sbci r19,0
 	sbci r24,0
@@ -135,7 +134,7 @@ _Z13update_summerj:
 	cpi r24,100
 	cpc r25,__zero_reg__
 	brsh .L10
-	ldi r24,lo8(50)
+	ldi r24,lo8(10)
 	ldi r25,0
 	sts 2844,r24
 	sts 2844+1,r25
@@ -157,10 +156,9 @@ _Z13update_summerj:
 	sbci r30,0
 	sbci r31,0
 	brne 1b
-.L16:
+.L15:
 	rjmp .
 	nop
-.L15:
 	sts 1126,r24
 /* epilogue start */
 	ret
@@ -192,13 +190,13 @@ _Z13update_summerj:
 	sbci r30,0
 	sbci r31,0
 	brne 1b
-	rjmp .L16
+	rjmp .L15
 .L12:
 	movw r24,r18
 	sbiw r24,25
 	sbiw r24,25
 	brsh .L13
-	ldi r24,lo8(10)
+	ldi r24,lo8(50)
 	ldi r25,0
 	sts 2844,r24
 	sts 2844+1,r25
@@ -220,14 +218,14 @@ _Z13update_summerj:
 	sbci r30,0
 	sbci r31,0
 	brne 1b
-	rjmp .L16
+	rjmp .L15
 .L13:
 	subi r18,1
 	sbc r19,__zero_reg__
 	cpi r18,24
 	cpc r19,__zero_reg__
 	brsh .L14
-	ldi r24,lo8(90)
+	ldi r24,lo8(75)
 	ldi r25,0
 	sts 2844,r24
 	sts 2844+1,r25
@@ -243,11 +241,24 @@ _Z13update_summerj:
 	ldi r31,hi8(-15537)
 1:	sbiw r30,1
 	brne 1b
-	rjmp .L16
+	rjmp .L15
 .L14:
-	sts 2844,__zero_reg__
-	sts 2844+1,__zero_reg__
+	ldi r24,lo8(100)
+	ldi r25,0
+	sts 2844,r24
+	sts 2844+1,r25
+	ldi r24,lo8(24999)
+	ldi r25,hi8(24999)
+1:	sbiw r24,1
+	brne 1b
+	rjmp .
+	nop
 	ldi r24,lo8(-128)
+	sts 1125,r24
+	ldi r30,lo8(24999)
+	ldi r31,hi8(24999)
+1:	sbiw r30,1
+	brne 1b
 	rjmp .L15
 	.size	_Z13update_summerj, .-_Z13update_summerj
 	.section	.text.startup,"ax",@progbits
@@ -265,12 +276,12 @@ main:
 	call _Z10init_timerv
 	ldi r28,lo8(58)
 	ldi r29,0
-.L18:
+.L17:
 	call _Z13measure_pulsev
 	movw r22,r28
 	call __udivmodhi4
 	movw r24,r22
 	call _Z13update_summerj
-	rjmp .L18
+	rjmp .L17
 	.size	main, .-main
 	.ident	"GCC: (GNU) 12.2.0"

@@ -13,7 +13,7 @@ void init_timer()
     TCB1.CTRLB = TCB_CNTMODE_PWM8_gc; // Set timer/counter B1 to PWM mode
 
     TCB1.CCMP = 100;             // Set PWM frequency to about 4 kHz
-    TCB1.CTRLB |= TCB_CCMPEN_bm; // Enable PWM output on PB7
+    TCB1.CTRLB = TCB_CCMPEN_bm; // Enable PWM output on PB7
 
         TCB1.CCMP = 10;            // Set PWM duty cycle to 10% for a very low-pitched tone
          PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
@@ -30,7 +30,6 @@ void send_pulse()
 {
     // Send trigger pulse
     PORTD.OUTSET = TRIGGER_PIN;
-    //_delay_us(100);
     _delay_ms(10);
     PORTD.OUTCLR = TRIGGER_PIN;
 }
@@ -63,7 +62,7 @@ void update_summer(uint16_t distance)
 {
     if (distance < 200 && distance >= 100)
     {
-        TCB1.CCMP = 50;            // Set PWM duty cycle to 50% for a mid-pitched tone
+        TCB1.CCMP = 10;            // Set PWM duty cycle to 10% for a very low-pitched tone
         _delay_ms(500);
         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
         _delay_ms(500);
@@ -79,7 +78,7 @@ void update_summer(uint16_t distance)
     }
     else if (distance < 50 && distance >= 25)
     {
-        TCB1.CCMP = 10;            // Set PWM duty cycle to 10% for a very low-pitched tone
+        TCB1.CCMP = 50;            // Set PWM duty cycle to 50% for a mid-pitched tone
         _delay_ms(100);
         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
         _delay_ms(100);
@@ -87,7 +86,7 @@ void update_summer(uint16_t distance)
     }
     else if (distance < 25 && distance > 0)
     {
-        TCB1.CCMP = 90;            // Set PWM duty cycle to 90% for a very high-pitched tone
+        TCB1.CCMP = 75;            // Set PWM duty cycle to 75% for a high-pitched tone
         _delay_ms(50);
         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
         _delay_ms(50);
@@ -95,7 +94,10 @@ void update_summer(uint16_t distance)
     }
     else
     {
-        TCB1.CCMP = 0;             // Turn off the PWM output
+        TCB1.CCMP = 100;   // Set PWM duty cycle to 90% for a very high-pitched tone
+        _delay_ms(25);
+        PORTD.OUTSET = SUMMER_PIN; // Turn on the summer
+        _delay_ms(25);
         PORTD.OUTCLR = SUMMER_PIN; // Turn off the summer
     }
     
