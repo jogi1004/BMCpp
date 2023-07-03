@@ -1,15 +1,15 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define F_CPU 20000000UL
+//#define F_CPU 20000000UL
+#define F_CPU 1000000UL
 #define TRIGGER_PIN PIN1_bm
 #define ECHO_PIN PIN0_bm
 #define SUMMER_PIN PIN7_bm
 
 template <typename T>
-class Timer
+struct Timer
 {
-public:
     static void delay(T milliseconds)
     {
         TCB0.CNT = 0;
@@ -70,7 +70,7 @@ void update_summer(uint16_t distance)
 {
     if (distance < 200 && distance >= 100)
     {
-        TCB1.CCMPH = 0; // Set PWM duty cycle to 0% for a very low-pitched tone
+        TCB1.CCMPH = 50; // Set PWM duty cycle to 0% for a very low-pitched tone
         TCB1.CCMPL = 10;
         Timer<uint16_t>::delay(500);
         PORTD.OUTSET = SUMMER_PIN; // Turn on the summer

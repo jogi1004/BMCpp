@@ -20,8 +20,8 @@ _Z10init_timerv:
 	ldi r24,lo8(7)
 	std Z+1,r24
 	std Z+13,__zero_reg__
-	ldi r24,lo8(100)
-	std Z+12,r24
+	ldi r24,lo8(50)
+	std Z+13,r24
 	ldi r24,lo8(16)
 	std Z+1,r24
 /* epilogue start */
@@ -39,15 +39,12 @@ _ZN5TimerIjE5delayEj:
 	sts 2826+1,__zero_reg__
 	ldi r18,lo8(1)
 	sts 2822,r18
-	ldi r20,lo8(56)
-	ldi r21,lo8(1)
-	mul r24,r20
+	ldi r20,lo8(15)
+	mul r20,r24
 	movw r18,r0
-	mul r24,r21
+	mul r20,r25
 	add r19,r0
-	mul r25,r20
-	add r19,r0
-	clr r1
+	clr __zero_reg__
 	sts 2828,r18
 	sts 2828+1,r19
 	ldi r24,lo8(3)
@@ -124,7 +121,8 @@ _Z13update_summerj:
 	cpi r24,100
 	cpc r25,__zero_reg__
 	brsh .L14
-	sts 2845,__zero_reg__
+	ldi r24,lo8(50)
+	sts 2845,r24
 	ldi r24,lo8(10)
 	sts 2844,r24
 	ldi r24,lo8(-12)
